@@ -1,0 +1,60 @@
+alias dataloss="grep ^Dirty /proc/meminfo"
+
+alias ping='ping -c 10'
+alias cp='cp -i'
+alias mv='mv -i'
+alias rm='rm -i'
+alias mkdir='mkdir -p'
+alias grep='grep --color=auto'
+alias ls="ls --color --group-directories-first"
+alias ll="ls -lhF"
+alias la="ls -lahF"
+alias nano='nano -c'
+
+alias tidyup='tidy -m -utf8 --indent auto --indent-spaces 4 --wrap 0'
+alias randompasswd="strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 10 | tr -d '\n'; echo"
+alias recent='find -maxdepth 1 -type f -mtime -1 -printf "%T@-%Tk:%TM - %f\n" | sort -rn | cut -d- -f2-'
+
+# enable color and human friendly output
+alias dir='dir -h --color=auto'
+alias vdir='vdir -h --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+alias myip='echo $(curl -s http://ifconfig.me/ip)'
+
+#currency aliases
+alias getcurrency="$HOME/bin/get_currency"
+alias usd='getcurrency usd'
+alias eur='getcurrency eur'
+alias aud='getcurrency aud'
+
+alias dominfo="$HOME/bin/whois.sh"
+alias top25='while read command percent rss rss2; do regex='^[0-9]+\.[0-9]+$'; if [[ ${percent} != '%MEM' ]] && ! [[ ${percent} =~ ${regex} ]] ; then rss=${rss2}; percent='N/A'; fi; if [[ "${command}" != "COMMAND" ]]; then rss="$(bc <<< "scale=2;${rss}/1024")"; fi;  printf "%-26s%-8s%s\n" "${command}" "${percent}" "${rss}"; done < <(ps -A --sort -rss -o comm,pmem,rss|head -26)'
+
+alias gtranslate="$HOME/bin/google_translate.sh"
+alias getlocalip="$HOME/bin/hosts_localip"
+alias duh='find $(pwd -P) -maxdepth 1 -type d -exec du -sh {} + 2>/dev/null | sort -h'
+alias hrule='perl -e "print q[x] x 80, qq[\n]"'
+alias lastfile='ls | pv -qL 10'
+alias wget='wget --no-check-certificate -U=Mozilla'
+alias ptop='watch -n1 -d ps auwfx --sort=+%cpu'
+alias memusage='ps -e -orss=,args= | sort -b -k1,1n'
+alias top10pr='ps -eo pcpu,rss,pid,user,args | sort -k 1 -r| head -10'
+alias mylogo='printf "\t\033#3ViruSzZ\n\t\033#4ViruSzZ\n\tA simple, lightweight Linux hacker\n"'
+
+alias screen='screen -U'
+alias ipcheck='php ~/bin/ip_info.php'
+
+alias gcc='gcc -Wall'
+alias totaldisk='df -hTl --total'
+alias ipCal='php ~/bin/ipcal.php '
+
+## EXIM ALIASES
+alias Exim-queue-clear='exim -bp | exiqgrep -i | xargs exim -Mrm'
+alias Exim-queue-summary='exim -bp | exiqsumm'
+alias Exim-queue-total='exim -bpc'
+alias Exim-queue-print='exim -bp'
+alias Exim-sent-frozen="exim -bp | grep frozen | awk '{print $3}'"
+alias Exim-queue-process='exim -qff'

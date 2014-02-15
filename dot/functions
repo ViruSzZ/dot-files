@@ -1,0 +1,209 @@
+#!/bin/bash
+## INCLUDE FILE ##
+
+# Useful shell functions
+
+################
+## Smarter CD ##
+################
+function goto() {
+   [ -d "$1" ] && cd "$1" || cd "$(dirname "$1")";
+}
+
+####################
+## Copy && Follow ##
+####################
+function cpf() {
+   cp "$@" && goto "$_";
+}
+
+####################
+## Move && Follow ##
+####################
+function mvf() {
+   mv "$@" && goto "$_";
+}
+
+#####################
+## mkdir && follow ##
+#####################
+function mkcdr() {
+   mkdir -vp "$@" && cd "$_";
+}
+
+#####################
+## Man page to PDF ##
+#####################
+man2pdf() {
+   man -w "$@" &> /dev/null && man -t "$@" | ps2pdf - "$@.pdf" && echo "$@.pdf"
+}
+
+###########################
+## Quote from bashquotes ##
+###########################
+function quote() {
+   curl -s "http://bash.org/?random1"|grep -oE "<p class=\"quote\">.*</p>.*</p>"|grep -oE "<p class=\"qt.*?</p>"|sed -e 's/<\/p>/\n/g' -e 's/<p class=\"qt\">//g' -e 's/<p class=\"qt\">//g'|perl -ne 'use HTML::Entities;print decode_entities($_),"\n"'|head -1
+}
+
+#################################
+## CLIcandy from commandlinefu ##
+#################################
+function fu() {
+   if [[ ! "$1" ]]; then
+      echo "Usage: fu [query]"
+      return
+   fi
+   URL=`echo "$@" | perl -MURI::Escape -ne 'chomp;print uri_escape($_)'`
+   curl -s "http://www.commandlinefu.com/commands/matching/$URL/$(echo -n "$@" | openssl base64)/plaintext" | grep -v "^# commandlinefu"
+}
+
+######################
+## Extract archives ##
+######################
+function extract() {
+   if [ -f "$1" ] ; then
+      case "$1" in
+         *.tar.bz2)   tar xvjf "$1"    ;;
+         *.tar.gz)    tar xvzf "$1"    ;;
+         *.bz2)       bunzip2 "$1"     ;;
+         *.rar)       unrar x "$1"     ;;
+         *.gz)        gunzip "$1"      ;;
+         *.tar)       tar xvf "$1"     ;;
+         *.tbz2)      tar xvjf "$1"    ;;
+         *.tgz)       tar xvzf "$1"    ;;
+         *.zip)       unzip "$1"       ;;
+         *.Z)         uncompress "$1"  ;;
+         *.7z)        7z x "$1"        ;;
+         *)           echo "don't know how to extract '$1'..." ;;
+      esac
+   else
+      echo "'$1' is not a valid file"
+   fi
+}
+
+########################
+## Create tar archive ##
+########################
+function mktar() {
+   tar cvf  "${1%%/}.tar" "${1%%/}/";
+}
+
+###########################
+## Create tar.gz archive ##
+###########################
+function mktgz() {
+   tar cvzf "${1%%/}.tar.gz"  "${1%%/}/";
+}
+
+############################
+## Create tar.bz2 archive ##
+############################
+function mktbz() {
+   tar cvjf "${1%%/}.tar.bz2" "${1%%/}/";
+}
+
+################
+## FLV >> MP3 ##
+################
+function flv2mp3() {
+   if [ ! -f "$1" ] || [[ ! "$1" ]]; then
+      echo "'$1' is not a valid file"
+      return
+   fi
+   ffmpeg -i "$1" -ab 320 -ar 44100 ${1%.*}.mp3
+}
+
+################
+## Calculator ##
+################
+calc() {
+  echo "scale=3; $*" | bc
+}
+
+#######################
+## Get kernel option ##
+#######################
+kopt() {
+  [[ $1 ]] || return 1
+  declare -u opt=$1
+  zgrep "$opt" /proc/config.gz
+}
+
+command_not_found_handle () { echo You better re-check yourself brother !!! ; }
+
+######################
+## Google translate ##
+######################
+translate(){ curl -s "http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=$(echo "$1" | sed 's/ /%20/g')&langpair=en%7Cmk" | sed 's/{"responseData": {"translatedText":"\([^"]*\)"}, .*}/\1\n/'; }
+
+#######################
+## Is it down for me ##
+#######################
+down4me() { curl -s "http://www.downforeveryoneorjustme.com/$1" | sed '/just you/!d;s/<[^>]*>//g' ; }
+
+find_larger_than() {
+        if [ $# -ne 2 ]
+        then
+                echo -e "Usage: $0 10240k /your/path"
+                exit 1
+        fi
+        for FILE in $(find $2 -type f -size $1); do $(du -csxh $FILE | head -1); done | sort -n
+}
+
+#######################
+## Get local weather ##
+#######################
+weather() {
+degrees=$(curl --silent "http://www.accuweather.com/en-us/mk/veles/prevalec/quick-look.aspx"|grep -E '(CurrentTemp|CurrentText)'|cut -d '>' -f2|cut -d'<' -f1|head -1| cut -d '&' -f1)
+
+mood=$(curl --silent "http://www.accuweather.com/en-us/mk/veles/prevalec/quick-look.aspx"|grep -E '(CurrentTemp|CurrentText)'|cut -d '>' -f2|cut -d'<' -f1|tail -1|tr [[:upper:]] [[:lower:]])
+
+printf "\n\t%-17s %-5s" "Degrees in Veles:" "$degrees C"
+printf "\n\t%-17s %-5s\n" "Weather Mood:" "$mood"
+}
+
+
+deadlib() { lsof | grep 'DEL.*lib' | cut -f 1 -d ' ' | sort -u; };
+
+### Gentoo specific
+# pkgfile()
+# {
+#     [[ $# -ne 1 ]] && echo -e "\aYou need to pass 1 arg only" && exit 1
+
+#     resultArray=($(echo /usr/portage/*/*${1}*|tr " " "\n"))
+#     for r in "${resultArray[@]}"; do
+#         echo -e "  => ${r:13}"
+#     done
+# }
+
+noComments()
+{
+    [[ $# -ne 1 ]] && echo -e "\aYou need to pass 1 arg only. USAGE: ${0##*/} file" && exit 1
+    grep -v "^#" ${1} |grep -v "^$"
+}
+
+genTree()
+{
+    [[ $# -ne 1 ]] && echo -e "\aYou need to pass 1 arg only. USAGE: ${0##*/} /some/dir" && exit 1
+    [[ -d ${1} ]] && find ${1} -type d |sed 's:[^-][^/]*/:--:g; s:^-: |:' || \
+         echo -e "\aThe directory ${1} does not exist"
+}
+conn-show()
+{
+  [[ $# -ne 1 ]] && echo -e "\aYou need to pass 1 arg PORT. USAGE: conn-show  PORT" && return 1
+  netstat -plane | grep :${1} | awk '{print $5}' | cut -d: -f1 |grep -v '0.0.0.0' | sort | uniq -c | sort -n
+}
+
+conn-count()
+{
+  [[ $# -ne 1 ]] && echo -e "\aYou need to pass 1 arg PORT. USAGE: conn-count PORT" && return 1
+  netstat -plane | grep :${1}  | awk '{print $5}' | cut -d: -f1 |grep -v '0.0.0.0' | sort | uniq -c | sort -n| awk '{SUM+=$1} END {print SUM}'
+}
+
+conn-details()
+{
+  [[ $# -ne 1 ]] && echo -e "\aYou need to pass 1 arg PORT. USAGE: conn-details PORT" && return 1
+  for ip in $(netstat -plane | grep :${1} | awk '{print $5}' | cut -d: -f1 |grep -v '0.0.0.0' | sort | uniq -c | sort -n|awk '{print $NF}'); do
+    ipcheck ${ip} | grep -E 'Ip_Address|Country' && echo '++++++++++++++++++++++++++++++++';
+  done
+}

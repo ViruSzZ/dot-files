@@ -1,0 +1,60 @@
+#!/bin/bash
+## INCLUDE FILE ##
+
+#####################
+## Color variables ##
+#####################
+function setcolors() {
+   DARK=$(tput setaf 0)
+   RED=$(tput setaf 1)
+   GREEN=$(tput setf 2)
+   ORANGE=$(tput setaf 3)
+   LIGHTBLUE=$(tput setaf 4)
+   MAUV=$(tput setaf 5)
+   DARKGREY=$(tput setaf 6)
+   WHITE=$(tput setaf 7)
+
+   BOLDDARK=$(tput setaf 8)
+   BOLDRED=$(tput setaf 9)
+   BOLDGREEN=$(tput setaf 10)
+   GOLD=$(tput setaf 11)
+   BLUE=$(tput setaf 12)
+   PURPLE=$(tput setaf 13)
+   GREY=$(tput setaf 14)
+   BOLDWHITE=$(tput setaf 15)
+
+   BLACK=$(tput setaf 16)
+   NORMAL=$(tput sgr0) # reset
+   DIM=$(tput dim)
+   BOLD=$(tput bold)
+   UNDRLN=$(tput smul)
+   RMUNDRLN=$(tput rmul)
+   BLINK=$(tput blink)
+   REVERSE=$(tput rev)
+   INVISIBLE=$(tput invis)
+}
+
+############################
+## Trim long paths to ... ##
+############################
+function reduce_path() {
+   local path="${PWD/#$HOME/~}"
+   # " on " + " in " = 8  #taken from the prompt
+   local maxlen="$(($(tput cols) -${#USER} -${#HOSTNAME} -8 -${1:-0}))"
+   if [ ${#path} -gt ${maxlen} ]
+   then
+      local prefix=".."
+      local path="${prefix}${path:$((${#path} -${maxlen} +${#prefix}))}"
+   fi
+   echo "${path}"
+}
+
+#################################
+## Welcome screen on new shell ##
+#################################
+function welcome() {
+   local VS_DISTRO=$(sed -r 's/(GNU\/Linux |release |i386|i486|i586|i686|LTS| for |\\.|\([^()]*\))//g;q' /etc/issue)
+   local POWERED="powered by ViruSzZ"
+   clear
+   echo "${BOLD}${CYAN}${VS_DISTRO}${WHITE}${POWERED}${NORMAL}"
+}
