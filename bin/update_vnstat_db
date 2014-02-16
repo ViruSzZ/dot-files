@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+if [[ -x /usr/bin/vnstat ]] && [[ $(ls /var/lib/vnstat/ | wc -l) -ge 1 ]]
+then
+    /usr/bin/vnstat -u
+fi

@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+if [ $# -ne 1 ]
+then
+	exit 1
+elif [ $1 == "down" ]
+then
+	xbacklight - 10
+elif [ $1 == "up" ]
+then
+	xbacklight + 10
+elif [ $1 == "max" ]
+then
+	xbacklight = 100
+elif [ $1 == "min" ]
+then
+	xbacklight = 10
+fi

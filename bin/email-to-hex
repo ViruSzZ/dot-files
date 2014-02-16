@@ -1,0 +1,9 @@
+#! /usr/bin/perl
+# convert given email address to hex
+# and use it in the mailto: being (almost?) spam free
+use warnings;
+use strict;
+my $emailAddr = shift or die "=> USAGE: ./$0 your-email\@address.tld\n";
+$emailAddr =~ s/(.)/ sprintf('%%%2x',ord($1)) /ge;
+chomp($emailAddr);
+print "'mailto:" . "$emailAddr" . "'\n";

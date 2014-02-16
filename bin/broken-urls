@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# check broken urls on a webpage
+
+echo "Checking links on $1"
+
+for i in \
+	$(wget -q "$1" -O- | grep -ow "href=\"http://[^\"]*\"" |
+	sed -e 's/href=//g' -e 's/"//g')
+do
+	echo "Checking $i"
+	wget -q "$i" -O/dev/null || echo -e "\t\e[31m$i\e[0;0m is broken..."
+done
